@@ -1,12 +1,16 @@
 #include <iostream>
 #include <conio.h>
+#include<windows.h>
 
 using namespace std;
 
 bool GameOver;
 const int width = 20;
 const int height = 20;
+
 int snakeHeadX, snakeHeadY, fruitX, fruitY, score;
+int tailX[60], tailY[60];
+int nTail;
 
 enum snakeDirection
 {
@@ -48,8 +52,26 @@ void Draw()
                 cout << "#";
             if (i == snakeHeadY && j == snakeHeadX)
                 cout << 0;
-            if (i == fruitY && j == fruitX)
+            else if (i == fruitY && j == fruitX)
                 cout << "F>";
+            else
+            {
+                bool print = false;
+                for(int k = 0; k < nTail; k ++)
+                {
+
+
+                    if (tailX[k] == j && tailY[k] == i)
+                    {
+                        cout << "o";
+                        print = true;
+
+                    }
+
+                }
+                if (!print)
+                    cout << " ";
+            }
 
                 cout << "";
             if (j == width - 1)
@@ -94,6 +116,26 @@ void Input()
 
 void Logic()
 {
+    int previousTailX = tailX[0];
+    int previousTailY = tailY[0];
+    int previousTail2X , previousTail2Y;
+
+    tailX[0] = snakeHeadX;
+    tailY[0] = snakeHeadY;
+
+
+    for (int i = 1 ; i < nTail; i++)
+    {
+        previousTail2X = tailX[i];
+        previousTail2Y = tailY[i];
+
+        tailX[i] = previousTailX;
+        tailY[i] = previousTailY;
+
+        previousTailX = previousTail2X;
+        previousTailY = previousTail2Y;
+
+    }
     switch(dir)
     {
     case UP:
@@ -111,15 +153,22 @@ void Logic()
     default:
         break;
     }
+
     if(snakeHeadX > width || snakeHeadX < 0 ||
         snakeHeadY > height || snakeHeadY < 0)
         GameOver = true;
+
+    for(int i = 0; i < nTail; i++)
+        if(tailX[1] == snakeHeadX && tailY[1] == snakeHeadY)
+            GameOver = true;
+
     if (snakeHeadX == fruitX && snakeHeadY == fruitY)
     {
         score += 10;
 
         fruitX = rand() % width;
         fruitY = rand() % height;
+        nTail ++;
     }
 
 }
@@ -132,6 +181,7 @@ int main()
         Draw();
         Input();
         Logic();
+        Sleep(60);
 
     }
 }
